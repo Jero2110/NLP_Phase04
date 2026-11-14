@@ -1,0 +1,21 @@
+documents:
+  - file: Ley_80_1993.pdf
+    title: Ley 80 de 1993 (Estatuto General de Contratación de la Administración Pública)
+    license: Norma oficial colombiana
+    url: "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=304"
+  - file: Ley_1474_2011.pdf
+    title: Ley 1474 de 2011 (Normas orientadas a fortalecer los mecanismos de prevención, investigación y sanción de actos de corrupción y la efectividad del control de la gestión pública.)
+    license: Norma oficial colombiana
+    url: "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=43292"
+  - file: manual_de_contratacion_compressed.pdf
+    title: Manual de contratación - Agencia Nacional de Contratación Pública - Colombia Compra Eficiente
+    licence:
+    url: "https://www.colombiacompra.gov.co/wp-content/uploads/2025/03/manual_de_contratacion_compressed.pdf"
+  - file: Decreto_1082_de_2015_Sector_Administrativo_de_Planeación_Nacional.pdf
+    title: Decreto 1082 de 2015 Sector Administrativo de Planeación Nacional
+    licence: 
+    url: "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=77653"
+  - file: Ley_1150_2007.pdf
+    title: Ley 1150 de 2007 (Medidas para la eficiencia y la transparencia en la Ley 80 de 1993)
+    licence:
+    url: "http://www.secretariasenado.gov.co/senado/basedoc/ley_1150_2007.html"

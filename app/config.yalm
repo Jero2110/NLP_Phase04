@@ -1,0 +1,68 @@
+# ----------------------------------------------------------------------------
+# CONFIGURACIÓN CENTRAL DEL ASISTENTE
+# Edita este archivo para cambiar modelos, parámetros o textos de la interfaz.
+# Después de cambiar el MODELO DE EMBEDDINGS o los documentos, reconstruye el índice:
+#   python scripts/build_index.py
+# ----------------------------------------------------------------------------
+
+llm:
+  backend: hf_api                     # hf_api = API gratuita de Hugging Face (recomendado en la web)
+                                      # local  = Transformers en tu equipo o Colab con GPU
+  model_id: Qwen/Qwen2.5-7B-Instruct  # modelo de lenguaje abierto
+  max_new_tokens: 400                 # longitud máxima de la respuesta (tokens)
+  temperature: 0.2                    # 0 = más determinista; valores altos = más creatividad (y más errores)
+
+embeddings:
+  model_id: BAAI/bge-m3               # modelo de embeddings (MIT). Alternativa ligera: intfloat/multilingual-e5-small
+  query_prefix: ""                    # e5 requiere "query: "; bge-m3 no lo necesita
+  passage_prefix: ""                  # e5 requiere "passage: "
+  batch_size: 16
+
+knowledge:
+  documents_dir: data/documents       # carpeta con los documentos (PDF, TXT, MD)
+  manifest: data/documents/sources.yaml  # licencia y título de cada documento
+  index_dir: data/index               # índice FAISS y fragmentos (puede versionarse en Git)
+  chunk_chars: 1000                   # tamaño aproximado de cada fragmento
+  overlap_chars: 150                  # solapamiento entre fragmentos consecutivos
+
+retrieval:
+  top_k: 4                            # número de fragmentos enviados al modelo
+  min_score: 0.45                     # similitud mínima; más alto = más "no encontré información"
+
+memory:
+  max_turns: 6                        # intercambios que recuerda la conversación
+  max_chars: 6000                     # límite aproximado de contexto de conversación
+
+safety:
+  max_input_chars: 1500               # longitud máxima de una pregunta
+
+profiles:
+  db_path: data/profiles.sqlite       # perfiles (solo CLI; la web usa modo anónimo)
+
+logging:
+  log_path: logs/events.jsonl         # un registro por turno, sin identificadores de usuario
+  feedback_path: logs/feedback.jsonl  # calificaciones (pulgar arriba/abajo) y comentarios
+  store_query_text: true              # false = no guardar el texto de las preguntas
+
+ui:
+  app_title: "Asistente de contratación pública (prototipo)"
+  show_sources: true                  # mostrar las fuentes citadas debajo de cada respuesta
+  disclaimer: >
+    Prototipo académico. Puede cometer errores o inventar información (alucinaciones).
+    Verifica siempre la información en las fuentes citadas y en el portal oficial.
+    No es asesoría jurídica.
+  capabilities:
+    - Explica términos y etapas de la contratación pública a partir de los documentos cargados.
+    - Muestra de qué fuente sale cada respuesta.
+    - Recuerda el contexto de la conversación actual.
+  limitations:
+    - No consulta procesos concretos de Datos Abiertos ni su estado en tiempo real.
+    - No da asesoría jurídica ni recomienda si debes participar en un proceso.
+    - Solo conoce los documentos cargados; si la respuesta no está en ellos, lo dirá.
+    - Puede equivocarse. Revisa las fuentes.
+    - No escribas datos personales (cédula, teléfono, correo) en tus preguntas.
+  example_prompts:
+    - ¿Qué significa adenda en un proceso de contratación?
+    - ¿Cuál es la diferencia entre licitación pública y selección abreviada?
+    - ¿Qué es un cronograma de un proceso de selección?
+    - ¿Qué son las garantías en la contratación pública?

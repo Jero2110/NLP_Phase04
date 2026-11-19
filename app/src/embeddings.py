@@ -6,21 +6,26 @@ from src.config import get_secret
 
 
 class Embedder:
-    """Misma interfaz para dos backends:
-    - local:  sentence-transformers en tu equipo (solo para construir el índice).
-    - hf_api: Inference API de Hugging Face (para la app desplegada, sin PyTorch).
-    Ambos devuelven vectores float32 normalizados (similitud coseno = producto interno)."""
+    """Misma interfaz para tres backends:
+    - fastembed: ONNX en el propio proceso (gratuito, ligero). Recomendado para web y para construir el índice.
+    - local:     sentence-transformers con PyTorch (solo para comparar en tu PC).
+    - hf_api:    Inference API de Hugging Face (requiere que el modelo tenga tarea feature-extraction).
+    Todos devuelven vectores float32 normalizados, así que la similitud coseno es el producto interno."""
 
     def __init__(self, cfg: dict):
-        self.backend = cfg.get("backend", "hf_api")
+        self.backend = cfg.get("backend", "fastembed")
         self.model_id = cfg["model_id"]
         self.query_prefix = cfg.get("query_prefix", "")
         self.passage_prefix = cfg.get("passage_prefix", "")
         self.batch_size = cfg.get("batch_size", 16)
         self._st = None
+        self._fe = None
         self._client = None
 
-        if self.backend == "local":
+        if self.backend == "fastembed":
+            from fastembed import TextEmbedding
+            self._fe = TextEmbedding(model_name=self.model_id)
+        elif self.backend == "local":
             from sentence_transformers import SentenceTransformer
             self._st = SentenceTransformer(self.model_id)
         elif self.backend == "hf_api":
@@ -36,23 +41,28 @@ class Embedder:
         return self._encode([self.query_prefix + t for t in texts])
 
     def _encode(self, texts: list[str]) -> np.ndarray:
+        if self.backend == "fastembed":
+            vectors = np.vstack(list(self._fe.embed(texts, batch_size=self.batch_size)))
+            return _normalize(vectors)
         if self.backend == "local":
-            vectors = self._st.encode(
-                texts, batch_size=self.batch_size, normalize_embeddings=True, convert_to_numpy=True
-            )
-            return vectors.astype("float32")
+            vectors = self._st.encode(texts, batch_size=self.batch_size, convert_to_numpy=True)
+            return _normalize(vectors)
         return np.vstack([self._api_embed(t) for t in texts]).astype("float32")
 
     def _api_embed(self, text: str, retries: int = 3) -> np.ndarray:
         for attempt in range(retries):
             try:
                 out = np.asarray(self._client.feature_extraction(text, model=self.model_id))
-                # Según el modelo, la API puede devolver (tokens, dims) o (1, tokens, dims).
-                # Hacemos mean pooling, igual que el modelo original de e5.
                 while out.ndim > 1:
                     out = out.mean(axis=0)
-                return out / np.linalg.norm(out)
+                return _normalize(out[None, :])[0]
             except Exception:
                 if attempt == retries - 1:
                     raise
-                time.sleep(2 * (attempt + 1))  # backoff ante límites de uso o carga del modelo
+                time.sleep(2 * (attempt + 1))
+
+
+def _normalize(vectors: np.ndarray) -> np.ndarray:
+    vectors = np.asarray(vectors, dtype="float32")
+    norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+    return vectors / np.clip(norms, 1e-12, None)

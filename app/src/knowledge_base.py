@@ -96,7 +96,8 @@ class KnowledgeBase:
 
         index = faiss.IndexFlatIP(vectors.shape[1])
         index.add(vectors)
-        faiss.write_index(index, str(self.index_dir / "index.faiss"))
+        index_bytes = faiss.serialize_index(index)
+        (self.index_dir / "index.faiss").write_bytes(index_bytes.tobytes())
         with open(self.index_dir / "chunks.jsonl", "w", encoding="utf-8") as f:
             for c in chunks:
                 f.write(json.dumps(c, ensure_ascii=False) + "\n")
@@ -108,7 +109,8 @@ class KnowledgeBase:
         index_file = self.index_dir / "index.faiss"
         if not index_file.exists():
             raise FileNotFoundError("No hay índice. Ejecuta scripts/build_index.py primero.")
-        self._index = faiss.read_index(str(index_file))
+        raw = np.frombuffer(index_file.read_bytes(), dtype="uint8")
+        self._index = faiss.deserialize_index(raw)
         with open(self.index_dir / "chunks.jsonl", encoding="utf-8") as f:
             self._chunks = [json.loads(line) for line in f]
 

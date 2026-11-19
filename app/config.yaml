@@ -13,18 +13,18 @@ llm:
   temperature: 0.2                    # 0 = más determinista; valores altos = más creatividad (y más errores)
 
 embeddings:
-  backend: hf_api                     # hf_api = en la web (Community Cloud); local = en tu PC para construir el índice
-  model_id: intfloat/multilingual-e5-small
-  query_prefix: "query: "             # e5 requiere estos prefijos
-  passage_prefix: "passage: "
-  batch_size: 16
+  backend: fastembed
+  model_id: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+  query_prefix: ""            # este modelo no usa prefijos
+  passage_prefix: ""
+  batch_size: 32
 
 knowledge:
-  documents_dir: data/documents       # carpeta con los documentos (PDF, TXT, MD)
-  manifest: data/documents/sources.yaml  # licencia y título de cada documento
-  index_dir: data/index               # índice FAISS y fragmentos (puede versionarse en Git)
-  chunk_chars: 1000                   # tamaño aproximado de cada fragmento
-  overlap_chars: 150                  # solapamiento entre fragmentos consecutivos
+  documents_dir: data/documents
+  manifest: data/documents/sources.yaml
+  index_dir: data/index
+  chunk_chars: 500                   
+  overlap_chars: 80                  # solapamiento entre fragmentos consecutivos
 
 retrieval:
   top_k: 4                            # número de fragmentos enviados al modelo

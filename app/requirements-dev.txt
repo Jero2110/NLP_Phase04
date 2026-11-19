@@ -2,3 +2,4 @@
 sentence-transformers>=3.0
 torch>=2.2
 pytest>=8.0
+fastembed>=0.3

@@ -6,7 +6,7 @@ import faiss
 import numpy as np
 import yaml
 from pypdf import PdfReader
-from sentence_transformers import SentenceTransformer
+from src.embeddings import Embedder
 
 SUPPORTED_EXT = {".pdf", ".txt", ".md"}
 
@@ -52,19 +52,9 @@ class KnowledgeBase:
     def __init__(self, index_dir: str | Path, embed_cfg: dict):
         self.index_dir = Path(index_dir)
         self.index_dir.mkdir(parents=True, exist_ok=True)
-        self.model_id = embed_cfg["model_id"]
-        self.query_prefix = embed_cfg.get("query_prefix", "")
-        self.passage_prefix = embed_cfg.get("passage_prefix", "")
-        self.batch_size = embed_cfg.get("batch_size", 16)
-        self._model: SentenceTransformer | None = None
+        self.embedder = Embedder(embed_cfg)
         self._index = None
-        self._chunks: list[dict] = []
-
-    @property
-    def model(self) -> SentenceTransformer:
-        if self._model is None:
-            self._model = SentenceTransformer(self.model_id)
-        return self._model
+        self._chunks: list[dict] = []   
 
     def build(self, documents_dir: str, manifest_path: str, chunk_chars: int, overlap: int) -> int:
         manifest = load_manifest(manifest_path)
@@ -88,13 +78,8 @@ class KnowledgeBase:
         if not chunks:
             raise ValueError("No se generaron fragmentos. Revisa documents_dir y el manifest.")
 
-        vectors = self.model.encode(
-            [self.passage_prefix + c["text"] for c in chunks],
-            batch_size=self.batch_size,
-            normalize_embeddings=True,
-            show_progress_bar=True,
-            convert_to_numpy=True,
-        ).astype("float32")
+        
+        vectors = self.embedder.encode_passages([c["text"] for c in chunks])
 
         index = faiss.IndexFlatIP(vectors.shape[1])
         index.add(vectors)
@@ -117,9 +102,8 @@ class KnowledgeBase:
     def search(self, query: str, top_k: int = 4, min_score: float = 0.45) -> list[dict]:
         if self._index is None:
             self.load()
-        q = self.model.encode(
-            [self.query_prefix + query], normalize_embeddings=True, convert_to_numpy=True
-        ).astype("float32")
+        
+        q = self.embedder.encode_queries([query])
         scores, ids = self._index.search(q, top_k)
         return [
             {**self._chunks[i], "score": round(float(s), 3)}

@@ -13,9 +13,10 @@ llm:
   temperature: 0.2                    # 0 = más determinista; valores altos = más creatividad (y más errores)
 
 embeddings:
-  model_id: BAAI/bge-m3               # modelo de embeddings (MIT). Alternativa ligera: intfloat/multilingual-e5-small
-  query_prefix: ""                    # e5 requiere "query: "; bge-m3 no lo necesita
-  passage_prefix: ""                  # e5 requiere "passage: "
+  backend: hf_api                     # hf_api = en la web (Community Cloud); local = en tu PC para construir el índice
+  model_id: intfloat/multilingual-e5-small
+  query_prefix: "query: "             # e5 requiere estos prefijos
+  passage_prefix: "passage: "
   batch_size: 16
 
 knowledge:
@@ -27,7 +28,7 @@ knowledge:
 
 retrieval:
   top_k: 4                            # número de fragmentos enviados al modelo
-  min_score: 0.45                     # similitud mínima; más alto = más "no encontré información"
+  min_score: 0.80                     # similitud mínima; más alto = más "no encontré información"
 
 memory:
   max_turns: 6                        # intercambios que recuerda la conversación

@@ -8,7 +8,8 @@ from src.knowledge_base import KnowledgeBase
 
 if __name__ == "__main__":
     cfg = load_config()
-    kb = KnowledgeBase(cfg["knowledge"]["index_dir"], cfg["embeddings"])
+    embed_cfg = {**cfg["embeddings"], "backend": "local"}   # construir siempre en local
+    kb = KnowledgeBase(cfg["knowledge"]["index_dir"], embed_cfg)
     n = kb.build(
         cfg["knowledge"]["documents_dir"],
         cfg["knowledge"]["manifest"],

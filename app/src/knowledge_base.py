@@ -11,9 +11,22 @@ from src.embeddings import Embedder
 SUPPORTED_EXT = {".pdf", ".txt", ".md"}
 
 
+REQUIRED_FIELDS = ("file", "title", "license")
+
+
 def load_manifest(path: str | Path) -> dict:
     with open(path, encoding="utf-8") as f:
-        return {d["file"]: d for d in yaml.safe_load(f)["documents"]}
+        data = yaml.safe_load(f)
+    entries = {}
+    for i, doc in enumerate(data.get("documents", []), start=1):
+        missing = [k for k in REQUIRED_FIELDS if not doc.get(k)]
+        if missing:
+            raise ValueError(
+                f"En {path}, la entrada #{i} ({doc.get('file', 'sin nombre')}) "
+                f"no tiene estos campos obligatorios: {', '.join(missing)}"
+            )
+        entries[doc["file"]] = doc
+    return entries
 
 
 def read_document(path: Path) -> list[tuple[int | None, str]]:

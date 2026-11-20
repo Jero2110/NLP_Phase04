@@ -9,11 +9,10 @@ from src.logging_analytics import EventLogger
 from src.memory import ShortTermMemory
 from src.preprocessing import classify_topics, preprocess_user_input
 from src.profiles import ProfileStore
-from src.prompts import NO_CONTEXT_MESSAGE, SYSTEM_PROMPT, build_messages, check_citations
-from src.secop import SecopClient, detect_intent
 from src.prompts import (
     NO_CONTEXT_MESSAGE, SYSTEM_PROMPT, build_messages, check_citations, format_extractive_answer,
 )
+from src.secop import SecopClient, detect_intent
 
 ERROR_MESSAGE = "Ocurrió un problema al generar la respuesta. Intenta de nuevo en unos minutos."
 EMPTY_MESSAGE = "Escribe una pregunta para poder ayudarte."
@@ -36,7 +35,7 @@ class ChatResponse:
 
 
 class Chatbot:
-    def __init__(self, cfg, kb, llm, profiles, logger):
+    def __init__(self, cfg, kb, llm, profiles, logger, secop=None):
         self.cfg = cfg
         self.kb = kb
         self.llm = llm
@@ -151,16 +150,15 @@ class Chatbot:
         self.logger.log(event)
         return ChatResponse(answer, status, sources, latency)
 
-
-
-
 def create_chatbot(cfg: dict | None = None) -> Chatbot:
     cfg = cfg or load_config()
     kb = KnowledgeBase(cfg["knowledge"]["index_dir"], cfg["embeddings"])
     llm = None if cfg["llm"]["backend"] == "extractive" else LLMClient(cfg["llm"])
     profiles = ProfileStore(cfg["profiles"]["db_path"], get_secret("PROFILE_SALT", required=True))
     logger = EventLogger(cfg["logging"]["log_path"])
-    secop = SecopClient(cfg["datos_abiertos"]) if cfg["datos_abiertos"]["enabled"] else None
-    bot = Chatbot(cfg, kb, llm, profiles, logger)
-    bot.secop = secop
+
+    secop = None
+    if cfg["datos_abiertos"]["enabled"]:
+        secop = SecopClient(cfg["datos_abiertos"])
+
     return Chatbot(cfg, kb, llm, profiles, logger, secop=secop)

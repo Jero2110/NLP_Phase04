@@ -2,7 +2,19 @@ from src.knowledge_base import chunk_text
 from src.memory import ShortTermMemory
 from src.preprocessing import classify_topics, preprocess_user_input, redact_pii
 from src.prompts import check_citations
+from src.secop import detect_intent
 
+
+def test_detects_process_code():
+    assert detect_intent("¿En qué etapa está CO1.PCCNTR.1234567?") == ("process", "CO1.PCCNTR.1234567")
+
+
+def test_detects_search_intent():
+    assert detect_intent("Busca procesos de papelería") == ("search", None)
+
+
+def test_regular_question_goes_to_docs():
+    assert detect_intent("¿Qué es una adenda?") == ("docs", None)
 
 def test_redacts_email_and_phone():
     text, found = redact_pii("Escríbeme a juan@mail.com o al 311 555 1234")

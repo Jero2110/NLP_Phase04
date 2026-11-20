@@ -43,6 +43,15 @@ def format_context(chunks: list[dict]) -> str:
         for i, c in enumerate(chunks, 1)
     )
 
+def format_extractive_answer(chunks: list[dict], max_chunks: int = 5) -> str:
+    lines = ["Según las fuentes disponibles, lo más relevante es:"]
+    for i, c in enumerate(chunks[:max_chunks], 1):
+        lines.append(f"- {sanitize(c['text'])} [F{i}]")
+    lines.append(
+        "\nEste texto es un extracto de los datos o documentos, no una respuesta redactada. "
+        "Verifica la información en el portal oficial antes de decidir."
+    )
+    return "\n".join(lines)
 
 def build_messages(system_prompt: str, history: list[dict], question: str, chunks: list[dict]) -> list[dict]:
     """Keeps three clearly separated layers: system rules, conversation history, and the

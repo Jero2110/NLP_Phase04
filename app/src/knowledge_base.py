@@ -121,7 +121,7 @@ class KnowledgeBase:
         q = self.embedder.encode_queries([query])
         scores, ids = self._index.search(q, top_k)
         return [
-            {**self._chunks[i], "score": round(float(s), 3)}
+            {**self._chunks[i], "score": round(float(s), 3), "origin": "documento"}
             for s, i in zip(scores[0], ids[0])
             if i != -1 and s >= min_score
         ]

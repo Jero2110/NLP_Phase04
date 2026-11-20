@@ -104,12 +104,22 @@ for i, msg in enumerate(st.session_state.messages):
         st.markdown(msg["content"])
         if msg["role"] == "assistant":
             if ui["show_sources"] and msg.get("sources"):
+                origins = {s.get("origin", "documento") for s in msg["sources"]}
+                if origins == {"secop"}:
+                    label = "Consulta en SECOP II (Datos Abiertos)"
+                elif origins == {"documento"}:
+                    label = "Consulta en documentos"
+                else:
+                    label = "Consulta en SECOP II y documentos"
+                st.caption(label)
+
                 with st.expander(f"Fuentes ({len(msg['sources'])})"):
                     for s in msg["sources"]:
-                        st.markdown(
-                            f"**[{s['id']}]** {s['source']} · página {s['page'] or '-'} · "
-                            f"similitud {s['score']}"
-                        )
+                        tag = "SECOP" if s.get("origin") == "secop" else "Documento"
+                        detail = f" · página {s['page']}" if s.get("page") else ""
+                        score = f" · similitud {s['score']}" if s.get("score") is not None else ""
+                        st.markdown(f"**[{s['id']}] {tag}** · {s['source']}{detail}{score}")
+                        
             rating = st.feedback("thumbs", key=f"fb_{i}")
             if rating is not None and rating != msg.get("feedback"):
                 msg["feedback"] = rating

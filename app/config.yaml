@@ -8,7 +8,7 @@
 llm:
   backend: hf_api                     # hf_api = API gratuita de Hugging Face (recomendado en la web)
                                       # local  = Transformers en tu equipo o Colab con GPU
-  model_id: Qwen/Qwen2.5-7B-Instruct  # modelo de lenguaje abierto
+  model_id: Mistral-7B-Instruct v0.3.  # modelo de lenguaje abierto
   max_new_tokens: 256                 # longitud máxima de la respuesta (tokens)
   temperature: 0.2                    # 0 = más determinista; valores altos = más creatividad (y más errores)
 
@@ -45,6 +45,25 @@ logging:
   feedback_path: logs/feedback.jsonl  # calificaciones (pulgar arriba/abajo) y comentarios
   store_query_text: true              # false = no guardar el texto de las preguntas
 
+datos_abiertos:
+  enabled: true
+  dataset_id: p6dx-8zbt          
+  max_results: 5
+  timeout_s: 10
+  cache_ttl_s: 3600              # evita repetir consultas idénticas durante una hora
+  fields:                        # nombres exactos de las columnas del dataset
+    reference: referencia_del_proceso
+    name: nombre_del_procedimiento
+    description: descripci_n_del_procedimiento
+    entity: entidad
+    city: ciudad_entidad
+    department: departamento_entidad
+    modality: modalidad_de_contratacion
+    status: estado_del_procedimiento
+    value: precio_base
+    awarded_to: nombre_del_proveedor
+    url: urlproceso
+
 ui:
   app_title: "Asistente de contratación pública (prototipo)"
   show_sources: true                  # mostrar las fuentes citadas debajo de cada respuesta
@@ -57,8 +76,10 @@ ui:
     - Muestra de qué fuente sale cada respuesta.
     - Recuerda el contexto de la conversación actual.
   limitations:
-    - No consulta procesos concretos de Datos Abiertos ni su estado en tiempo real.
-    - No da asesoría jurídica ni recomienda si debes participar en un proceso.
+    - Filtro geográfico pendiente. La búsqueda es por texto del objeto. Filtrar por Medellín requiere usar los campos de departamento o ciudad de la entidad, lo que sería una mejora posterior.
+    - Desfase de datos. Un proceso puede estar cerrado en el portal y aparecer como abierto en el dataset hasta su siguiente actualización.
+    - Dependencia de un servicio externo. Si datos.gov.co no responde, el asistente cae a la búsqueda en documentos, y el registro guarda el error en secop_error.
+    - No da asesoría jurídica ni recomienda si debes participar en un proceso. Los datos informan, pero no reemplazan el pliego de condiciones
     - Solo conoce los documentos cargados; si la respuesta no está en ellos, lo dirá.
     - Puede equivocarse. Revisa las fuentes.
     - No escribas datos personales (cédula, teléfono, correo) en tus preguntas.

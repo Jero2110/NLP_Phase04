@@ -8,7 +8,7 @@
 llm:
   backend: hf_api                     # hf_api = API gratuita de Hugging Face (recomendado en la web)
                                       # local  = Transformers en tu equipo o Colab con GPU
-  model_id: Mistral-7B-Instruct v0.3.  # modelo de lenguaje abierto
+  model_id: Qwen/Qwen2.5-7B-Instruct  # modelo de lenguaje abierto
   max_new_tokens: 256                 # longitud máxima de la respuesta (tokens)
   temperature: 0.2                    # 0 = más determinista; valores altos = más creatividad (y más errores)
 

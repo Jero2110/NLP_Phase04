@@ -9,7 +9,7 @@ llm:
   backend: hf_api                     # hf_api = API gratuita de Hugging Face (recomendado en la web)
                                       # local  = Transformers en tu equipo o Colab con GPU
   model_id: Qwen/Qwen2.5-7B-Instruct  # modelo de lenguaje abierto
-  max_new_tokens: 400                 # longitud máxima de la respuesta (tokens)
+  max_new_tokens: 256                 # longitud máxima de la respuesta (tokens)
   temperature: 0.2                    # 0 = más determinista; valores altos = más creatividad (y más errores)
 
 embeddings:
@@ -28,7 +28,7 @@ knowledge:
 
 retrieval:
   top_k: 4                            # número de fragmentos enviados al modelo
-  min_score: 0.80                     # similitud mínima; más alto = más "no encontré información"
+  min_score: 0.60                     # similitud mínima; más alto = más "no encontré información"
 
 memory:
   max_turns: 6                        # intercambios que recuerda la conversación

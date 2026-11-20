@@ -76,7 +76,7 @@ ui:
     - Muestra de qué fuente sale cada respuesta.
     - Recuerda el contexto de la conversación actual.
   limitations:
-    - Filtro geográfico pendiente. La búsqueda es por texto del objeto. Filtrar por Medellín requiere usar los campos de departamento o ciudad de la entidad, lo que sería una mejora posterior.
+    - Consultas en Datos Abiertos pueden fallar (Etapa de pruebas y desarrollo)
     - Desfase de datos. Un proceso puede estar cerrado en el portal y aparecer como abierto en el dataset hasta su siguiente actualización.
     - Dependencia de un servicio externo. Si datos.gov.co no responde, el asistente cae a la búsqueda en documentos, y el registro guarda el error en secop_error.
     - No da asesoría jurídica ni recomienda si debes participar en un proceso. Los datos informan, pero no reemplazan el pliego de condiciones

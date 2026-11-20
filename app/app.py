@@ -3,6 +3,16 @@ from pathlib import Path
 
 import streamlit as st
 
+import os
+
+try:
+    for key in ("HF_TOKEN", "PROFILE_SALT"):
+        if key in st.secrets and not os.getenv(key):
+            os.environ[key] = st.secrets[key]
+except Exception:
+    pass  # sin archivo de secretos (desarrollo local con .env)
+
+
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 

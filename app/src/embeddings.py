@@ -22,6 +22,12 @@ class Embedder:
         self._fe = None
         self._client = None
 
+        if not isinstance(cfg.get("backend", "fastembed"), str):
+            raise TypeError(
+                "La clave 'backend' de embeddings debe ser un texto, por ejemplo 'fastembed'. "
+                "Revisa config.yaml y scripts/build_index.py."
+            )
+        
         if self.backend == "fastembed":
             from fastembed import TextEmbedding
             self._fe = TextEmbedding(model_name=self.model_id)
